@@ -1,0 +1,105 @@
+{
+  "_comment": "配置要拉取的飞书 Base 表和字段映射。table_id 是飞书 Base 中的表 ID（tbl 开头），fields 是要拉取的字段名列表。模块字段用于页面模板的数据绑定。",
+  "base_token": "",
+  "tables": [
+    {
+      "name": "environment_params",
+      "table_id": "tbluaD1MVQ4Ukiaj",
+      "module": "环境趋势",
+      "fields": [
+        "record_time",
+        "temperature",
+        "humidity",
+        "ammonia",
+        "house_id",
+        "device_id"
+      ],
+      "description": "环境传感器数据，包含温度、湿度、氨气浓度"
+    },
+    {
+      "name": "farming_events",
+      "table_id": "tblYDcpLnhS5CEfE",
+      "module": "养殖事件",
+      "fields": [
+        "event_id",
+        "event_type",
+        "event_date",
+        "house_id",
+        "group_id",
+        "description",
+        "source_type",
+        "confidence"
+      ],
+      "description": "养殖操作事件记录，包含饲喂、免疫、死亡、淘汰等"
+    },
+    {
+      "name": "animal_health",
+      "table_id": "tblWYRLkrd8OyrmV",
+      "module": "动物健康",
+      "fields": [
+        "animal_id",
+        "health_status",
+        "symptoms",
+        "diagnosis",
+        "disease_name",
+        "treatment",
+        "record_date",
+        "source_type",
+        "confidence"
+      ],
+      "description": "动物健康检查记录，包含健康状态、症状、诊断"
+    },
+    {
+      "name": "feed_consumption",
+      "table_id": "tblkwDZgf4tialVd",
+      "module": "饲料消耗",
+      "fields": [
+        "record_date",
+        "group_id",
+        "feed_type",
+        "feed_quantity_kg",
+        "avg_intake_kg",
+        "animal_count",
+        "feed_cost",
+        "source_type",
+        "confidence"
+      ],
+      "description": "饲料消耗记录，包含采食量、成本、存栏数"
+    },
+    {
+      "name": "market_data",
+      "table_id": "tbl5q441BWNBe1hy",
+      "module": "行业行情",
+      "fields": [
+        "data_date",
+        "indicator",
+        "value",
+        "unit",
+        "region",
+        "category",
+        "source_name",
+        "source_url"
+      ],
+      "description": "行业行情基准数据，用于雷达图对比"
+    },
+    {
+      "name": "alert_record",
+      "table_id": "tblrJZB0fUz2b1ej",
+      "module": "告警统计",
+      "fields": [
+        "alert_id",
+        "alert_time",
+        "alert_type",
+        "alert_level",
+        "alert_value",
+        "threshold_value",
+        "house_id",
+        "device_id",
+        "status",
+        "handle_note",
+        "handle_time"
+      ],
+      "description": "设备告警记录，包含告警级别、处理状态"
+    }
+  ]
+}
