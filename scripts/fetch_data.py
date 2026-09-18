@@ -37,9 +37,18 @@ RATE_LIMIT_DELAY = 0.5  # 表间拉取间隔，避免触发速率限制
 
 
 def parse_date_safe(date_str):
-    """安全解析日期字符串，支持多种常见格式。"""
+    """安全解析日期字符串或时间戳，支持多种常见格式。"""
     if not date_str:
         return None
+    # 处理整数/浮点数时间戳（毫秒或秒）
+    if isinstance(date_str, (int, float)):
+        ts = date_str
+        # 毫秒时间戳（13位）
+        if ts > 1e10:
+            ts = ts / 1000.0
+        return datetime.fromtimestamp(ts)
+    # 确保是字符串
+    date_str = str(date_str).strip()
     formats = (
         "%Y-%m-%dT%H:%M:%S.%f%z",
         "%Y-%m-%dT%H:%M:%S%z",
