@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI+智慧养殖数据大屏</title>
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js"></script>
+  <style>
+    :root {
+      --bg-primary: #0a1628;
+      --bg-card: #111d32;
+      --bg-card-hover: #162540;
+      --border-color: #1e3a5f;
+      --text-primary: #e8f0fe;
+      --text-secondary: #8ba3c7;
+      --accent-blue: #3b82f6;
+      --accent-green: #22c55e;
+      --accent-orange: #f59e0b;
+      --accent-red: #ef4444;
+      --accent-cyan: #06b6d4;
+      --accent-purple: #a855f7;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+    }
+    .header {
+      background: linear-gradient(135deg, #0d1f3a 0%, #111d32 100%);
+      border-bottom: 1px solid var(--border-color);
+      padding: 16px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .header h1 {
+      font-size: 20px;
+      font-weight: 600;
+      background: linear-gradient(90deg, var(--accent-blue), var(--accent-cyan));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .header-meta {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+    .header-meta span { display: flex; align-items: center; gap: 6px; }
+    .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+    .dot.live { background: var(--accent-green); animation: pulse 2s infinite; }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+    .container {
+      padding: 20px 24px;
+      max-width: 1600px;
+      margin: 0 auto;
+    }
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    .kpi-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 16px 20px;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .kpi-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      border-radius: 12px 12px 0 0;
+    }
+    .kpi-card:hover { background: var(--bg-card-hover); transform: translateY(-2px); }
+    .kpi-card.blue::before { background: var(--accent-blue); }
+    .kpi-card.green::before { background: var(--accent-green); }
+    .kpi-card.orange::before { background: var(--accent-orange); }
+    .kpi-card.red::before { background: var(--accent-red); }
+    .kpi-card.cyan::before { background: var(--accent-cyan); }
+    .kpi-card.purple::before { background: var(--accent-purple); }
+    .kpi-label {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .kpi-value {
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+    .kpi-unit {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-left: 4px;
+    }
+    .kpi-sub {
+      font-size: 11px;
+      color: var(--text-secondary);
+      margin-top: 4px;
+    }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .chart-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .chart-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    .chart-subtitle {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+    .chart-body { width: 100%; height: 320px; }
+    .chart-body.small { height: 240px; }
+    .chart-body.large { height: 380px; }
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    .data-table th {
+      text-align: left;
+      padding: 10px 12px;
+      color: var(--text-secondary);
+      font-weight: 500;
+      border-bottom: 1px solid var(--border-color);
+      white-space: nowrap;
+    }
+    .data-table td {
+      padding: 10px 12px;
+      border-bottom: 1px solid rgba(30, 58, 95, 0.4);
+      color: var(--text-primary);
+    }
+    .data-table tr:hover td { background: var(--bg-card-hover); }
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 500;
+    }
+    .badge-green { background: rgba(34, 197, 94, 0.15); color: var(--accent-green); }
+    .badge-orange { background: rgba(245, 158, 11, 0.15); color: var(--accent-orange); }
+    .badge-red { background: rgba(239, 68, 68, 0.15); color: var(--accent-red); }
+    .badge-blue { background: rgba(59, 130, 246, 0.15); color: var(--accent-blue); }
+    .badge-gray { background: rgba(139, 163, 199, 0.15); color: var(--text-secondary); }
+    .empty-state {
+      text-align: center;
+      padding: 40px;
+      color: var(--text-secondary);
+      font-size: 14px;
+    }
+    @media (max-width: 768px) {
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+      .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+      .header { flex-direction: column; align-items: flex-start; }
+      .chart-body { height: 260px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>AI+智慧养殖数据大屏</h1>
+    <div class="header-meta">
+      <span><i class="dot live"></i> 数据实时同步中</span>
+      <span>更新时间：<span id="update-time">{{ generated_at[:19] }}</span></span>
+      <span>下次刷新：<span id="countdown">14:59</span></span>
+    </div>
+  </div>
+
+  <div class="container">
+    <!-- KPI Cards -->
+    <div class="kpi-grid">
+      <div class="kpi-card blue">
+        <div class="kpi-label">存栏总数</div>
+        <div class="kpi-value">{{ data.kpi.total_animals | none_to_dash }}</div>
+        <div class="kpi-sub">当前存栏量</div>
+      </div>
+      <div class="kpi-card red">
+        <div class="kpi-label">死淘率</div>
+        <div class="kpi-value">{{ data.kpi.death_rate | none_to_dash }}<span class="kpi-unit">%</span></div>
+        <div class="kpi-sub">死亡+淘汰占比</div>
+      </div>
+      <div class="kpi-card orange">
+        <div class="kpi-label">累计告警</div>
+        <div class="kpi-value">{{ data.kpi.alert_count | none_to_dash }}</div>
+        <div class="kpi-sub">待处理 {{ data.kpi.unhandled_alerts | default(0) }} 条</div>
+      </div>
+      <div class="kpi-card green">
+        <div class="kpi-label">最新温度</div>
+        <div class="kpi-value">{{ data.kpi.latest_temperature | none_to_dash }}<span class="kpi-unit">℃</span></div>
+        <div class="kpi-sub">{{ data.kpi.latest_env_time | none_to_dash }}</div>
+      </div>
+      <div class="kpi-card cyan">
+        <div class="kpi-label">最新湿度</div>
+        <div class="kpi-value">{{ data.kpi.latest_humidity | none_to_dash }}<span class="kpi-unit">%</span></div>
+        <div class="kpi-sub">环境湿度</div>
+      </div>
+      <div class="kpi-card purple">
+        <div class="kpi-label">氨气浓度</div>
+        <div class="kpi-value">{{ data.kpi.latest_ammonia | none_to_dash }}<span class="kpi-unit">ppm</span></div>
+        <div class="kpi-sub">有害气体监测</div>
+      </div>
+    </div>
+
+    <!-- Row 1: Environment Trend + Radar -->
+    <div class="grid-2">
+      <div class="chart-card">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title">环境监控趋势</div>
+            <div class="chart-subtitle">温度 / 湿度 / 氨气浓度变化</div>
+          </div>
+        </div>
+        <div id="chart-env" class="chart-body large"></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title">行业基准雷达图</div>
+            <div class="chart-subtitle">行情指标均值 vs 最新值</div>
+          </div>
+        </div>
+        <div id="chart-radar" class="chart-body large"></div>
+      </div>
+    </div>
+
+    <!-- Row 2: Feed + Health -->
+    <div class="grid-2">
+      <div class="chart-card">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title">饲料消耗预测</div>
+            <div class="chart-subtitle">历史实线 + 未来7天虚线预测</div>
+          </div>
+        </div>
+        <div id="chart-feed" class="chart-body"></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title">鸡群健康概览</div>
+            <div class="chart-subtitle">健康状态分布</div>
+          </div>
+        </div>
+        <div id="chart-health" class="chart-body"></div>
+      </div>
+    </div>
+
+    <!-- Row 3: Farming Events + Alerts -->
+    <div class="grid-2">
+      <div class="chart-card">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title">养殖事件统计</div>
+            <div class="chart-subtitle">事件类型分布</div>
+          </div>
+        </div>
+        <div id="chart-farming" class="chart-body"></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title">告警记录</div>
+            <div class="chart-subtitle">最近10条告警</div>
+          </div>
+        </div>
+        <div style="max-height: 320px; overflow-y: auto;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>时间</th>
+                <th>类型</th>
+                <th>级别</th>
+                <th>数值</th>
+                <th>状态</th>
+              </tr>
+            </thead>
+            <tbody id="alert-table-body">
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ===== 嵌入数据 =====
+    const dashboardData = {{ data | tojson }};
+    const generatedAt = "{{ generated_at }}";
+
+    // ===== 倒计时 =====
+    function updateCountdown() {
+      const now = new Date();
+      const min = now.getMinutes();
+      const sec = now.getSeconds();
+      const remainingMin = 14 - (min % 15);
+      const remainingSec = 59 - sec;
+      document.getElementById('countdown').textContent =
+        String(remainingMin).padStart(2, '0') + ':' + String(remainingSec).padStart(2, '0');
+    }
+    setInterval(updateCountdown, 1000);
+    updateCountdown();
+
+    // ===== ECharts 主题色 =====
+    const colors = ['#3b82f6', '#22c55e', '#f59e0b', '#ef4444', '#06b6d4', '#a855f7'];
+
+    // ===== 环境趋势图 =====
+    (function() {
+      const trend = dashboardData.environment?.trend || [];
+      const el = document.getElementById('chart-env');
+      if (!el || trend.length === 0) {
+        if (el) el.innerHTML = '<div class="empty-state">暂无环境数据</div>';
+        return;
+      }
+      const dates = trend.map(d => d.date);
+      const temps = trend.map(d => d.temperature_avg);
+      const humidities = trend.map(d => d.humidity_avg);
+      const ammonias = trend.map(d => d.ammonia_avg);
+
+      const chart = echarts.init(el, null, { renderer: 'canvas' });
+      chart.setOption({
+        tooltip: { trigger: 'axis', backgroundColor: '#111d32', borderColor: '#1e3a5f', textStyle: { color: '#e8f0fe' } },
+        legend: { data: ['温度(℃)', '湿度(%)', '氨气(ppm)'], textStyle: { color: '#8ba3c7' }, bottom: 0 },
+        grid: { left: '3%', right: '3%', bottom: '15%', top: '10%', containLabel: true },
+        xAxis: { type: 'category', data: dates, axisLine: { lineStyle: { color: '#1e3a5f' } }, axisLabel: { color: '#8ba3c7' } },
+        yAxis: [
+          { type: 'value', name: '温度/湿度', axisLine: { lineStyle: { color: '#1e3a5f' } }, axisLabel: { color: '#8ba3c7' }, splitLine: { lineStyle: { color: 'rgba(30,58,95,0.3)' } } },
+          { type: 'value', name: '氨气(ppm)', axisLine: { lineStyle: { color: '#1e3a5f' } }, axisLabel: { color: '#8ba3c7' }, splitLine: { show: false } }
+        ],
+        series: [
+          { name: '温度(℃)', type: 'line', data: temps, smooth: true, yAxisIndex: 0, lineStyle: { color: '#ef4444', width: 2 }, itemStyle: { color: '#ef4444' }, areaStyle: { color: { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [{ offset: 0, color: 'rgba(239,68,68,0.2)' }, { offset: 1, color: 'rgba(239,68,68,0)' }] } } },
+          { name: '湿度(%)', type: 'line', data: humidities, smooth: true, yAxisIndex: 0, lineStyle: { color: '#3b82f6', width: 2 }, itemStyle: { color: '#3b82f6' } },
+          { name: '氨气(ppm)', type: 'line', data: ammonias, smooth: true, yAxisIndex: 1, lineStyle: { color: '#f59e0b', width: 2 }, itemStyle: { color: '#f59e0b' }, markLine: { silent: true, lineStyle: { color: '#ef4444', type: 'dashed' }, data: [{ yAxis: 20, label: { formatter: '阈值20ppm', color: '#ef4444' } }] } }
+        ]
+      });
+      window.addEventListener('resize', () => chart.resize());
+    })();
+
+    // ===== 雷达图 =====
+    (function() {
+      const radar = dashboardData.market?.radar || [];
+      const el = document.getElementById('chart-radar');
+      if (!el || radar.length === 0) {
+        if (el) el.innerHTML = '<div class="empty-state">暂无行情数据</div>';
+        return;
+      }
+      const indicators = radar.map(r => ({ name: r.indicator, max: Math.ceil(r.avg * 1.5) }));
+      const avgData = radar.map(r => r.avg);
+      const latestData = radar.map(r => r.latest);
+
+      const chart = echarts.init(el, null, { renderer: 'canvas' });
+      chart.setOption({
+        tooltip: { backgroundColor: '#111d32', borderColor: '#1e3a5f', textStyle: { color: '#e8f0fe' } },
+        legend: { data: ['均值', '最新值'], textStyle: { color: '#8ba3c7' }, bottom: 0 },
+        radar: {
+          indicator: indicators,
+          axisName: { color: '#8ba3c7' },
+          splitArea: { areaStyle: { color: ['rgba(30,58,95,0.1)', 'rgba(30,58,95,0.2)'] } },
+          axisLine: { lineStyle: { color: '#1e3a5f' } },
+          splitLine: { lineStyle: { color: '#1e3a5f' } }
+        },
+        series: [{
+          type: 'radar',
+          data: [
+            { value: avgData, name: '均值', lineStyle: { color: '#3b82f6' }, itemStyle: { color: '#3b82f6' }, areaStyle: { color: 'rgba(59,130,246,0.2)' } },
+            { value: latestData, name: '最新值', lineStyle: { color: '#22c55e' }, itemStyle: { color: '#22c55e' }, areaStyle: { color: 'rgba(34,197,94,0.2)' } }
+          ]
+        }]
+      });
+      window.addEventListener('resize', () => chart.resize());
+    })();
+
+    // ===== 饲料消耗 =====
+    (function() {
+      const history = dashboardData.feed?.history || [];
+      const predicted = dashboardData.feed?.predicted || [];
+      const el = document.getElementById('chart-feed');
+      if (!el || history.length === 0) {
+        if (el) el.innerHTML = '<div class="empty-state">暂无饲料数据</div>';
+        return;
+      }
+      const validHistory = history.filter(h => h.feed_quantity_kg != null);
+      const histDates = validHistory.map(h => h.date);
+      const histValues = validHistory.map(h => h.feed_quantity_kg);
+      const predDates = predicted.map(p => p.date);
+      const predValues = predicted.map(p => p.feed_quantity_kg);
+      // 连接点
+      const allDates = histDates.concat(predDates);
+      const allValues = histValues.concat(predValues);
+      const seriesData = allValues.map((v, i) => (i < histValues.length ? v : { value: v, itemStyle: { color: '#f59e0b' } }));
+
+      const chart = echarts.init(el, null, { renderer: 'canvas' });
+      chart.setOption({
+        tooltip: { trigger: 'axis', backgroundColor: '#111d32', borderColor: '#1e3a5f', textStyle: { color: '#e8f0fe' } },
+        grid: { left: '3%', right: '3%', bottom: '5%', top: '10%', containLabel: true },
+        xAxis: { type: 'category', data: allDates, axisLine: { lineStyle: { color: '#1e3a5f' } }, axisLabel: { color: '#8ba3c7', rotate: 45 } },
+        yAxis: { type: 'value', name: '饲料量(kg)', axisLine: { lineStyle: { color: '#1e3a5f' } }, axisLabel: { color: '#8ba3c7' }, splitLine: { lineStyle: { color: 'rgba(30,58,95,0.3)' } } },
+        series: [{
+          type: 'line',
+          data: seriesData,
+          smooth: true,
+          lineStyle: {
+            color: { type: 'linear', x: 0, y: 0, x2: 1, y2: 0, colorStops: [
+              { offset: 0, color: '#3b82f6' },
+              { offset: histValues.length / allValues.length, color: '#3b82f6' },
+              { offset: histValues.length / allValues.length, color: '#f59e0b' },
+              { offset: 1, color: '#f59e0b' }
+            ]}
+          },
+          itemStyle: { color: '#3b82f6' },
+          areaStyle: { color: { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [{ offset: 0, color: 'rgba(59,130,246,0.15)' }, { offset: 1, color: 'rgba(59,130,246,0)' }] } },
+          markLine: predicted.length > 0 ? {
+            silent: true,
+            symbol: 'none',
+            lineStyle: { color: '#f59e0b', type: 'dashed' },
+            data: [{ xAxis: histDates[histDates.length - 1], label: { formatter: '预测起点', color: '#f59e0b' } }]
+          } : undefined
+        }]
+      });
+      window.addEventListener('resize', () => chart.resize());
+    })();
+
+    // ===== 健康状态饼图 =====
+    (function() {
+      const dist = dashboardData.health?.status_distribution || [];
+      const el = document.getElementById('chart-health');
+      if (!el || dist.length === 0) {
+        if (el) el.innerHTML = '<div class="empty-state">暂无健康数据</div>';
+        return;
+      }
+      const chart = echarts.init(el, null, { renderer: 'canvas' });
+      chart.setOption({
+        tooltip: { trigger: 'item', backgroundColor: '#111d32', borderColor: '#1e3a5f', textStyle: { color: '#e8f0fe' } },
+        legend: { orient: 'vertical', right: 10, top: 'center', textStyle: { color: '#8ba3c7' } },
+        series: [{
+          type: 'pie',
+          radius: ['40%', '70%'],
+          center: ['40%', '50%'],
+          avoidLabelOverlap: false,
+          itemStyle: { borderRadius: 6, borderColor: '#111d32', borderWidth: 2 },
+          label: { show: false },
+          emphasis: { label: { show: true, fontSize: 14, fontWeight: 'bold', color: '#e8f0fe' } },
+          data: dist.map((d, i) => ({ value: d.count, name: d.status, itemStyle: { color: colors[i % colors.length] } }))
+        }]
+      });
+      window.addEventListener('resize', () => chart.resize());
+    })();
+
+    // ===== 养殖事件柱状图 =====
+    (function() {
+      const byType = dashboardData.farming?.by_type || [];
+      const el = document.getElementById('chart-farming');
+      if (!el || byType.length === 0) {
+        if (el) el.innerHTML = '<div class="empty-state">暂无事件数据</div>';
+        return;
+      }
+      const chart = echarts.init(el, null, { renderer: 'canvas' });
+      chart.setOption({
+        tooltip: { trigger: 'axis', backgroundColor: '#111d32', borderColor: '#1e3a5f', textStyle: { color: '#e8f0fe' } },
+        grid: { left: '3%', right: '3%', bottom: '5%', top: '10%', containLabel: true },
+        xAxis: { type: 'category', data: byType.map(d => d.type), axisLine: { lineStyle: { color: '#1e3a5f' } }, axisLabel: { color: '#8ba3c7' } },
+        yAxis: { type: 'value', axisLine: { lineStyle: { color: '#1e3a5f' } }, axisLabel: { color: '#8ba3c7' }, splitLine: { lineStyle: { color: 'rgba(30,58,95,0.3)' } } },
+        series: [{
+          type: 'bar',
+          data: byType.map((d, i) => ({ value: d.count, itemStyle: { color: colors[i % colors.length], borderRadius: [4, 4, 0, 0] } })),
+          barWidth: '50%'
+        }]
+      });
+      window.addEventListener('resize', () => chart.resize());
+    })();
+
+    // ===== 告警表格 =====
+    (function() {
+      const alerts = dashboardData.alerts?.latest || [];
+      const tbody = document.getElementById('alert-table-body');
+      if (!tbody) return;
+      if (alerts.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="empty-state">暂无告警记录</td></tr>';
+        return;
+      }
+      tbody.innerHTML = alerts.map(a => {
+        let badgeClass = 'badge-gray';
+        const level = Array.isArray(a.alert_level) ? a.alert_level[0] : (a.alert_level || '');
+        const status = Array.isArray(a.status) ? a.status[0] : (a.status || '未处理');
+        if (level.includes('紧急') || level.includes('P0')) badgeClass = 'badge-red';
+        else if (level.includes('重要') || level.includes('P1')) badgeClass = 'badge-orange';
+        else if (level.includes('一般')) badgeClass = 'badge-blue';
+
+        let statusClass = 'badge-gray';
+        if (status === '已处理') statusClass = 'badge-green';
+        else if (status === '误报') statusClass = 'badge-blue';
+        else statusClass = 'badge-red';
+
+        const time = a.alert_time ? a.alert_time.slice(0, 16).replace('T', ' ') : '—';
+        const type = Array.isArray(a.alert_type) ? a.alert_type[0] : (a.alert_type || '—');
+
+        return `<tr>
+          <td>${time}</td>
+          <td>${type}</td>
+          <td><span class="badge ${badgeClass}">${level || '—'}</span></td>
+          <td>${a.alert_value || '—'}</td>
+          <td><span class="badge ${statusClass}">${status}</span></td>
+        </tr>`;
+      }).join('');
+    })();
+  </script>
+</body>
+</html>
