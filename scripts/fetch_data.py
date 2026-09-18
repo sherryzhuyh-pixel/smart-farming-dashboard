@@ -179,11 +179,20 @@ def process_environment(env_records: list) -> dict:
         if date not in daily:
             daily[date] = {"temps": [], "humidities": [], "ammonias": []}
         if r.get("temperature") is not None:
-            daily[date]["temps"].append(r["temperature"])
+            try:
+                daily[date]["temps"].append(float(r["temperature"]))
+            except (ValueError, TypeError):
+                pass
         if r.get("humidity") is not None:
-            daily[date]["humidities"].append(r["humidity"])
+            try:
+                daily[date]["humidities"].append(float(r["humidity"]))
+            except (ValueError, TypeError):
+                pass
         if r.get("ammonia") is not None:
-            daily[date]["ammonias"].append(r["ammonia"])
+            try:
+                daily[date]["ammonias"].append(float(r["ammonia"]))
+            except (ValueError, TypeError):
+                pass
 
     trend = []
     for date in sorted(daily.keys()):
@@ -275,12 +284,19 @@ def process_feed(feed_records: list) -> dict:
 
     history = []
     for r in sorted_records:
+        def to_float(v):
+            if v is None:
+                return None
+            try:
+                return float(v)
+            except (ValueError, TypeError):
+                return None
         history.append({
             "date": r["record_date"][:10] if r["record_date"] else "",
-            "feed_quantity_kg": r.get("feed_quantity_kg"),
-            "avg_intake_kg": r.get("avg_intake_kg"),
-            "animal_count": r.get("animal_count"),
-            "feed_cost": r.get("feed_cost"),
+            "feed_quantity_kg": to_float(r.get("feed_quantity_kg")),
+            "avg_intake_kg": to_float(r.get("avg_intake_kg")),
+            "animal_count": to_float(r.get("animal_count")),
+            "feed_cost": to_float(r.get("feed_cost")),
             "predicted": False,
         })
 
@@ -324,7 +340,10 @@ def process_market(market_records: list) -> dict:
         if ind not in indicators:
             indicators[ind] = {"values": [], "unit": r.get("unit", ""), "category": r.get("category", "")}
         if r.get("value") is not None:
-            indicators[ind]["values"].append(r["value"])
+            try:
+                indicators[ind]["values"].append(float(r["value"]))
+            except (ValueError, TypeError):
+                pass
 
     radar = []
     for ind, data in indicators.items():
