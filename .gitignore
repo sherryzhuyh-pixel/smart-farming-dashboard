@@ -1,0 +1,20 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.pytest_cache/
+
+# macOS
+.DS_Store
+
+# Build outputs
+data/
+dist/
+*.log
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
