@@ -1,0 +1,82 @@
+name: Update Dashboard
+
+on:
+  schedule:
+    # 每15分钟触发一次
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+    # 支持手动触发，方便调试
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages-smart-farming-dashboard"
+  cancel-in-progress: false
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Fetch data from Feishu Base
+        env:
+          LARK_APP_ID: ${{ secrets.LARK_APP_ID }}
+          LARK_APP_SECRET: ${{ secrets.LARK_APP_SECRET }}
+          LARK_BASE_TOKEN: ${{ secrets.LARK_BASE_TOKEN }}
+        run: |
+          mkdir -p data
+          python scripts/fetch_data.py --output data/dashboard_data.json
+
+      - name: Render HTML template
+        run: |
+          mkdir -p dist
+          python scripts/render_template.py \
+            --template template/dashboard.html.j2 \
+            --data data/dashboard_data.json \
+            --output dist/index.html
+
+      - name: Validate generated HTML
+        run: |
+          if [ ! -s dist/index.html ]; then
+            echo "Error: index.html is empty"
+            exit 1
+          fi
+          if grep -q "Traceback" dist/index.html; then
+            echo "Error: HTML contains Python traceback"
+            exit 1
+          fi
+          echo "HTML validation passed"
+
+      - name: Copy static assets
+        run: |
+          # 如果 assets/ 目录存在且有内容，复制到 dist/
+          if [ -d "assets" ] && [ "$(ls -A assets/ 2>/dev/null)" ]; then
+            cp -r assets/* dist/
+          else
+            echo "No assets to copy, skipping"
+          fi
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        if: github.ref == 'refs/heads/main'
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
+          publish_branch: gh-pages
+          force_orphan: false
