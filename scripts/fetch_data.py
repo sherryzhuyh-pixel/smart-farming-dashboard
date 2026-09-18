@@ -175,7 +175,12 @@ def process_environment(env_records: list) -> dict:
             continue
         # 安全解析日期
         dt = parse_date_safe(t)
-        date = dt.strftime("%Y-%m-%d") if dt else t[:10]
+        if dt:
+            date = dt.strftime("%Y-%m-%d")
+        elif isinstance(t, str) and len(t) >= 10:
+            date = t[:10]
+        else:
+            date = str(t)[:10] if t else ""
         if date not in daily:
             daily[date] = {"temps": [], "humidities": [], "ammonias": []}
         if r.get("temperature") is not None:
@@ -279,7 +284,7 @@ def process_feed(feed_records: list) -> dict:
 
     sorted_records = sorted(
         [r for r in feed_records if r.get("record_date")],
-        key=lambda x: x["record_date"],
+        key=lambda x: parse_date_safe(x.get("record_date")) or "",
     )
 
     history = []
@@ -291,8 +296,10 @@ def process_feed(feed_records: list) -> dict:
                 return float(v)
             except (ValueError, TypeError):
                 return None
+        dt = parse_date_safe(r.get("record_date"))
+        date_str = dt.strftime("%Y-%m-%d") if dt else ""
         history.append({
-            "date": r["record_date"][:10] if r["record_date"] else "",
+            "date": date_str,
             "feed_quantity_kg": to_float(r.get("feed_quantity_kg")),
             "avg_intake_kg": to_float(r.get("avg_intake_kg")),
             "animal_count": to_float(r.get("animal_count")),
