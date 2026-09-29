@@ -192,7 +192,7 @@
     <h1>AI+智慧养殖数据大屏</h1>
     <div class="header-meta">
       <span><i class="dot live"></i> 数据实时同步中</span>
-      <span>更新时间：<span id="update-time">2026-09-29T09:41:51</span></span>
+      <span>更新时间：<span id="update-time">2026-09-29T16:09:53</span></span>
       <span>下次刷新：<span id="countdown">14:59</span></span>
     </div>
   </div>
@@ -217,12 +217,12 @@
       </div>
       <div class="kpi-card green">
         <div class="kpi-label">最新温度</div>
-        <div class="kpi-value">—<span class="kpi-unit">℃</span></div>
-        <div class="kpi-sub">—</div>
+        <div class="kpi-value">26<span class="kpi-unit">℃</span></div>
+        <div class="kpi-sub">1790694000000</div>
       </div>
       <div class="kpi-card cyan">
         <div class="kpi-label">最新湿度</div>
-        <div class="kpi-value">—<span class="kpi-unit">%</span></div>
+        <div class="kpi-value">60<span class="kpi-unit">%</span></div>
         <div class="kpi-sub">环境湿度</div>
       </div>
       <div class="kpi-card purple">
@@ -315,8 +315,8 @@
 
   <script>
     // ===== 嵌入数据 =====
-    const dashboardData = {"alerts": {"by_level": [], "by_type": [], "latest": [], "total": 0, "unhandled": 0}, "environment": {"latest": {}, "trend": []}, "farming": {"by_type": [], "recent": [], "total": 0}, "feed": {"history": [], "predicted": []}, "health": {"latest": [], "status_distribution": [], "total": 0}, "kpi": {"alert_count": 0, "death_rate": null, "latest_ammonia": null, "latest_env_time": null, "latest_humidity": null, "latest_temperature": null, "total_animals": null, "unhandled_alerts": 0}, "market": {"latest_date": "", "radar": []}, "meta": {"data_source": "Feishu Base", "generated_at": "2026-09-29T09:41:51.277101"}};
-    const generatedAt = "2026-09-29T09:41:51.277101";
+    const dashboardData = {"alerts": {"by_level": [], "by_type": [], "latest": [], "total": 0, "unhandled": 0}, "environment": {"latest": {"ammonia": null, "device_id": null, "house_id": null, "humidity": "60", "record_time": 1790694000000, "temperature": "26"}, "trend": [{"ammonia_avg": null, "date": "1970-01-01", "humidity_avg": null, "temperature_avg": null}, {"ammonia_avg": 12.0, "date": "2025-09-30", "humidity_avg": 65.0, "temperature_avg": 26.5}, {"ammonia_avg": 5.0, "date": "2026-09-28", "humidity_avg": 60.0, "temperature_avg": 25.0}, {"ammonia_avg": 5.0, "date": "2026-09-29", "humidity_avg": 60.0, "temperature_avg": 26.0}]}, "farming": {"by_type": [], "recent": [], "total": 1}, "feed": {"history": [], "predicted": []}, "health": {"latest": [], "status_distribution": [], "total": 1}, "kpi": {"alert_count": 0, "death_rate": null, "latest_ammonia": null, "latest_env_time": 1790694000000, "latest_humidity": "60", "latest_temperature": "26", "total_animals": null, "unhandled_alerts": 0}, "market": {"latest_date": "", "radar": []}, "meta": {"data_source": "Feishu Base", "generated_at": "2026-09-29T16:09:53.313446"}};
+    const generatedAt = "2026-09-29T16:09:53.313446";
 
     // ===== 倒计时 =====
     function updateCountdown() {
