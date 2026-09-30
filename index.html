@@ -192,7 +192,7 @@
     <h1>AI+智慧养殖数据大屏</h1>
     <div class="header-meta">
       <span><i class="dot live"></i> 数据实时同步中</span>
-      <span>更新时间：<span id="update-time">2026-09-30T00:16:56</span></span>
+      <span>更新时间：<span id="update-time">2026-09-30T05:52:56</span></span>
       <span>下次刷新：<span id="countdown">14:59</span></span>
     </div>
   </div>
@@ -202,12 +202,12 @@
     <div class="kpi-grid">
       <div class="kpi-card blue">
         <div class="kpi-label">存栏总数</div>
-        <div class="kpi-value">—</div>
+        <div class="kpi-value">500.0</div>
         <div class="kpi-sub">当前存栏量</div>
       </div>
       <div class="kpi-card red">
         <div class="kpi-label">死淘率</div>
-        <div class="kpi-value">—<span class="kpi-unit">%</span></div>
+        <div class="kpi-value">0.0<span class="kpi-unit">%</span></div>
         <div class="kpi-sub">死亡+淘汰占比</div>
       </div>
       <div class="kpi-card orange">
@@ -217,17 +217,17 @@
       </div>
       <div class="kpi-card green">
         <div class="kpi-label">最新温度</div>
-        <div class="kpi-value">—<span class="kpi-unit">℃</span></div>
-        <div class="kpi-sub">1790725080000</div>
+        <div class="kpi-value">27<span class="kpi-unit">℃</span></div>
+        <div class="kpi-sub">1790740800000</div>
       </div>
       <div class="kpi-card cyan">
         <div class="kpi-label">最新湿度</div>
-        <div class="kpi-value">—<span class="kpi-unit">%</span></div>
+        <div class="kpi-value">70<span class="kpi-unit">%</span></div>
         <div class="kpi-sub">环境湿度</div>
       </div>
       <div class="kpi-card purple">
         <div class="kpi-label">氨气浓度</div>
-        <div class="kpi-value">—<span class="kpi-unit">ppm</span></div>
+        <div class="kpi-value">2<span class="kpi-unit">ppm</span></div>
         <div class="kpi-sub">有害气体监测</div>
       </div>
     </div>
@@ -315,8 +315,8 @@
 
   <script>
     // ===== 嵌入数据 =====
-    const dashboardData = {"alerts": {"by_level": [], "by_type": [], "latest": [], "total": 0, "unhandled": 0}, "environment": {"latest": {"ammonia": null, "device_id": null, "house_id": null, "humidity": null, "record_time": 1790725080000, "temperature": null}, "trend": [{"ammonia_avg": null, "date": "1970-01-01", "humidity_avg": null, "temperature_avg": null}, {"ammonia_avg": 10.0, "date": "2025-09-30", "humidity_avg": 65.0, "temperature_avg": 26.5}, {"ammonia_avg": 5.0, "date": "2026-09-28", "humidity_avg": 60.0, "temperature_avg": 25.0}, {"ammonia_avg": 5.0, "date": "2026-09-29", "humidity_avg": 60.0, "temperature_avg": 26.0}]}, "farming": {"by_type": [], "recent": [], "total": 1}, "feed": {"history": [], "predicted": []}, "health": {"latest": [], "status_distribution": [], "total": 1}, "kpi": {"alert_count": 0, "death_rate": null, "latest_ammonia": null, "latest_env_time": 1790725080000, "latest_humidity": null, "latest_temperature": null, "total_animals": null, "unhandled_alerts": 0}, "market": {"latest_date": "", "radar": []}, "meta": {"data_source": "Feishu Base", "generated_at": "2026-09-30T00:16:56.172295"}};
-    const generatedAt = "2026-09-30T00:16:56.172295";
+    const dashboardData = {"alerts": {"by_level": [], "by_type": [], "latest": [], "total": 0, "unhandled": 0}, "environment": {"latest": {"ammonia": "2", "device_id": null, "house_id": null, "humidity": "70", "record_time": 1790740800000, "temperature": "27"}, "trend": [{"ammonia_avg": 3.5, "date": "2025-10-29", "humidity_avg": 60.0, "temperature_avg": 27.0}, {"ammonia_avg": 5.0, "date": "2026-09-30", "humidity_avg": 66.25, "temperature_avg": 26.75}]}, "farming": {"by_type": [], "recent": [], "total": 0}, "feed": {"history": [{"animal_count": 500.0, "avg_intake_kg": null, "date": "2024-09-30", "feed_cost": 200.0, "feed_quantity_kg": 100.0, "predicted": false}], "predicted": []}, "health": {"latest": [{"animal_id": null, "confidence": null, "diagnosis": "\u5065\u5eb7", "disease_name": null, "health_status": "\u5065\u5eb7", "record_date": 1727654400000, "source_type": "\u624b\u52a8\u5f55\u5165", "symptoms": "\u65e0", "treatment": "\u65e0"}], "status_distribution": [{"count": 1, "status": "\u5065\u5eb7"}], "total": 1}, "kpi": {"alert_count": 0, "death_rate": 0.0, "latest_ammonia": "2", "latest_env_time": 1790740800000, "latest_humidity": "70", "latest_temperature": "27", "total_animals": 500.0, "unhandled_alerts": 0}, "market": {"latest_date": "", "radar": []}, "meta": {"data_source": "Feishu Base", "generated_at": "2026-09-30T05:52:56.690445"}};
+    const generatedAt = "2026-09-30T05:52:56.690445";
 
     // ===== 倒计时 =====
     function updateCountdown() {
